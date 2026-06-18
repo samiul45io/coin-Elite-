@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Coin Elite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-main: #020804;
+            --bg-card: #06140a;
+            --primary: #00E676;
+            --accent: #B2FF59;
+            --text-light: #F8FAFC;
+            --text-muted: #8c9b91;
+            --input-bg: #0a1f11;
+            --border: #14361f;
+            --danger: #ef4444;
+            --whatsapp: #25D366;
+            --gradient-btn: linear-gradient(135deg, #00b09b, #96c93d);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg-main);
+            background-image: radial-gradient(circle at 50% 0%, #052613 0%, transparent 80%);
+            color: var(--text-light); display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; overflow-x: hidden; position: relative; padding: 15px;
+            flex-direction: column;
+        }
+
+        /* Overlays */
+        .fullscreen-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-main); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(20px); transition: 0.5s ease;
+        }
+        .auth-card {
+            background: rgba(6, 20, 10, 0.9); padding: clamp(25px, 5vw, 40px); border-radius: 24px;
+            border: 1px solid rgba(0, 230, 118, 0.3); text-align: center;
+            width: 100%; max-width: 400px; box-shadow: 0 0 50px rgba(0, 230, 118, 0.1);
+        }
+        .auth-card h2 { color: var(--primary); font-family: 'Orbitron', sans-serif; margin-bottom: 10px; font-size: clamp(1.5rem, 4vw, 2rem); }
+        .auth-card p { color: var(--text-muted); font-size: clamp(0.8rem, 3vw, 0.9rem); margin-bottom: 25px; }
+
+        /* Main App Container */
+        .app-container {
+            width: 100%; max-width: 480px;
+            background: rgba(6, 20, 10, 0.7); backdrop-filter: blur(25px);
+            border-radius: 24px; padding: clamp(20px, 5vw, 35px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(0, 230, 118, 0.15);
+            z-index: 10; display: flex; flex-direction: column; gap: 20px;
+            display: none; margin-bottom: 15px;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-family: 'Orbitron', sans-serif; font-size: clamp(1.4rem, 5vw, 1.8rem); color: var(--primary); text-transform: uppercase; letter-spacing: 2px;}
+        
+        .header-actions { display: flex; gap: 8px; }
+        .icon-btn {
+            background: var(--input-bg); border: 1px solid var(--border);
+            padding: clamp(8px, 2vw, 12px); border-radius: 12px; color: var(--text-light);
+            cursor: pointer; transition: 0.3s; font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+        .icon-btn:hover { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 15px rgba(0,230,118,0.2); }
+
+        .display-card {
+            background: linear-gradient(160deg, #0a1f11, #020804);
+            border-radius: 20px; padding: clamp(20px, 5vw, 30px) 15px; text-align: center;
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 15px 30px rgba(0,0,0,0.5);
+        }
+        .coin-value { font-family: 'Orbitron', sans-serif; font-size: clamp(3rem, 10vw, 4.5rem); font-weight: 900; color: var(--primary); text-shadow: 0 0 30px rgba(0, 230, 118, 0.5); line-height: 1.1; word-break: break-word;}
+        .tk-value { font-size: clamp(1rem, 3vw, 1.2rem); color: var(--text-muted); margin-top: 5px; }
+        .tk-value span { color: #fff; font-weight: bold; font-size: clamp(1.2rem, 4vw, 1.5rem); }
+
+        .motivation-box {
+            margin-top: 15px; padding: 10px; border-radius: 10px;
+            background: rgba(0, 230, 118, 0.05);
+            font-size: clamp(1rem, 3vw, 1.2rem); color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 15px; }
+        .input-box {
+            background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+            border-radius: 14px; padding: clamp(14px, 4vw, 16px); color: #fff; font-size: clamp(1rem, 3vw, 1.1rem);
+            text-align: center; outline: none; transition: 0.3s; width: 100%;
+        }
+        .input-box:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
+
+        .btn-primary {
+            background: var(--primary); color: #000; border: none;
+            padding: clamp(14px, 4vw, 18px); border-radius: 14px; font-size: clamp(1rem, 3vw, 1.1rem); font-weight: 800;
+            cursor: pointer; text-transform: uppercase; transition: 0.3s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-primary:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 230, 118, 0.3); }
+        .btn-withdraw { background: var(--gradient-btn); color: #000; margin-top: 5px; }
+
+        /* Powerful WhatsApp Button Style */
+        .btn-whatsapp { 
+            background: var(--whatsapp); color: #fff; margin-top: 15px; 
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
+            font-size: 1.1rem; padding: 20px; border-radius: 16px;
+        }
+        .btn-whatsapp:hover { background: #1ebd5a; box-shadow: 0 12px 25px rgba(37, 211, 102, 0.5); transform: scale(1.02); }
+
+        .footer { text-align: center; font-size: 0.85rem; color: var(--text-muted); display: none; }
+        .footer span { color: var(--primary); font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99; opacity: 0; visibility: hidden; transition: 0.3s; }
+        .sidebar { position: fixed; top: 0; left: -100%; width: clamp(280px, 80%, 350px); height: 100%; background: var(--bg-card); border-right: 1px solid var(--border); z-index: 100; padding: clamp(20px, 5vw, 30px); transition: left 0.4s; display: flex; flex-direction: column; }
+        .sidebar.open { left: 0; }
+        .sidebar-overlay.open { opacity: 1; visibility: visible; }
+        
+        .session-item { background: var(--input-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); cursor: pointer; }
+        .session-item.active { border-color: var(--primary); }
+        .session-info h4 { font-size: clamp(0.85rem, 3vw, 0.95rem); color: #fff; }
+        .session-info p { font-size: clamp(0.75rem, 2vw, 0.85rem); color: var(--primary); }
+        .delete-btn { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; padding: 8px; border-radius: 8px; cursor: pointer; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(10px); padding: 15px; }
+        .modal-content { background: var(--bg-card); padding: clamp(25px, 6vw, 35px); border-radius: 20px; width: 100%; max-width: 420px; border: 1px solid var(--border); text-align: center; }
+        .modal-content h2 { color: var(--primary); margin-bottom: 20px; font-family: 'Orbitron', sans-serif; }
+
+        /* Hidden Card for export */
+        .payment-card-wrapper { position: fixed; top: -3000px; left: 0; z-index: -10; }
+        .alien-card {
+            width: 520px; height: 320px; 
+            background: linear-gradient(135deg, #011208 0%, #0a3a1f 50%, #011208 100%);
+            border-radius: 24px; padding: 35px; color: #fff;
+            font-family: 'Poppins', sans-serif; position: relative; overflow: hidden;
+            box-shadow: 0 0 0 2px rgba(0, 230, 118, 0.3); display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .alien-card::after { content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent); transform: skewX(-25deg); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; z-index: 2; }
+        .card-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: var(--primary); letter-spacing: 4px; text-transform: uppercase; font-weight: 900;}
+        .chip-container { display: flex; align-items: center; gap: 15px; margin-top: 15px; z-index: 2;}
+        .smart-chip { width: 55px; height: 42px; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7); border-radius: 8px; position: relative; border: 1px solid #8e681c; }
+        .smart-chip-center { position: absolute; top: 20%; left: 30%; width: 40%; height: 60%; border: 1px solid rgba(0,0,0,0.3); border-radius: 4px; }
+        .card-body { z-index: 2; margin-top: 15px; display: flex; justify-content: space-between; align-items: center;}
+        .card-amount { font-family: 'Orbitron', sans-serif; font-size: 3.2rem; font-weight: 900; color: #fff; line-height: 1; }
+        .date-badge { font-size: 0.85rem; color: var(--text-muted); text-align: right;}
+        .date-badge span { display: block; color: #fff; font-size: 1.1rem; font-weight: bold;}
+        .card-footer-flex { z-index: 2; display: flex; justify-content: space-between; align-items: flex-end; }
+        .user-name { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: #fff; text-transform: uppercase;}
+        .accounts-info { text-align: right; font-size: 1rem; color: #cbd5e1; }
+        .accounts-info span { color: var(--accent); font-weight: bold; font-family: 'Orbitron', sans-serif; }
+    </style>
+</head>
+<body>
+
+    <div class="fullscreen-overlay" id="authScreen">
+        <div class="auth-card">
+            <h2>System Locked</h2>
+            <p>Please enter your access pin to continue.</p>
+            <input type="password" id="authPassword" class="input-box" placeholder="Enter PIN" style="margin-bottom: 20px; letter-spacing: 3px;">
+            <button class="btn-primary" onclick="verifyPassword()">Unlock System</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="setupScreen" style="display: none;">
+        <div class="auth-card">
+            <h2>Welcome!</h2>
+            <p>Set your default name for payment cards.</p>
+            <input type="text" id="setupName" class="input-box" placeholder="Your Full Name" style="margin-bottom: 20px;">
+            <button class="btn-primary" onclick="saveProfileName()">Save & Continue</button>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color:var(--primary); font-size: 1.3rem;">History</h2>
+            <button class="icon-btn" onclick="toggleSidebar()">✖</button>
+        </div>
+        <button class="btn-primary" style="margin-bottom: 20px; padding: 12px;" onclick="createNewSession()">+ New Session</button>
+        <div id="sessionList" style="overflow-y: auto; flex: 1; padding-right: 5px;"></div>
+    </div>
+
+    <div class="app-container" id="mainApp">
+        <div class="header">
+            <h1>Coin Elite</h1>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleSidebar()" title="History">🕒</button>
+                <button class="icon-btn" onclick="openSettings()" title="API Settings">⚙️</button>
+            </div>
+        </div>
+
+        <div class="display-card">
+            <div class="coin-value" id="coinDisplay">0</div>
+            <div class="tk-value">Total BDT: ৳ <span id="tkDisplay">0.00</span></div>
+            <div class="motivation-box" id="motivationBox">এগিয়ে যান</div>
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="coinInput" class="input-box" placeholder="Enter Amount (e.g. 1000)" inputmode="numeric">
+            <button class="btn-primary" onclick="addCoins()">Add Coins</button>
+            <button class="btn-primary btn-withdraw" onclick="initiatePayment()">Generate Payment Card</button>
+        </div>
+    </div>
+
+    <div class="footer" id="appFooter">Developed by <span>Yasmin</span></div>
+
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <h2>API Settings</h2>
+            <input type="text" id="apiKeyInput" class="input-box" style="margin-bottom: 20px;" placeholder="Custom API Key">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" style="flex: 1; background: var(--input-bg); color: #fff;" onclick="closeModals()">Cancel</button>
+                <button class="btn-primary" style="flex: 1;" onclick="saveApiKey()">Save Key</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-content">
+            <h2>Payment Details</h2>
+            <input type="text" id="nameInput" class="input-box" style="margin-bottom: 15px;" placeholder="Full Name">
+            <input type="text" id="bkashInput" class="input-box" style="margin-bottom: 15px;" placeholder="bKash Number" inputmode="numeric">
+            <input type="text" id="nagadInput" class="input-box" style="margin-bottom: 25px;" placeholder="Nagad Number" inputmode="numeric">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" style="flex: 1; background: var(--input-bg); color: #fff;" onclick="closeModals()">Cancel</button>
+                <button class="btn-primary" style="flex: 1; background: var(--gradient-btn); color: #000;" onclick="processPayment()">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-content" style="border: 2px solid var(--whatsapp); padding: 40px 20px;">
+            <h2 id="modalStatusTitle" style="color: var(--primary); font-size: 1.8rem;">Processing... ⏳</h2>
+            <p id="modalStatusText" style="margin-bottom: 25px; color: #fff; font-size: 1rem;">
+                আপনার পেমেন্ট কার্ড তৈরি হচ্ছে...
+            </p>
+
+            <button class="btn-primary btn-whatsapp" id="whatsappBtn" onclick="sendToWhatsApp()" style="display: none; justify-content: center; align-items: center; gap: 10px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+                </svg>
+                Send to Admin (WhatsApp)
+            </button>
+            <button class="btn-primary" style="background: transparent; color: var(--text-muted); border: 1px solid var(--border); margin-top: 15px;" onclick="closeModals()">Close</button>
+        </div>
+    </div>
+
+    <div class="payment-card-wrapper">
+        <div class="alien-card" id="alienPaymentCard">
+            <div class="card-header">
+                <div class="card-title">COIN ELITE</div>
+                <div class="date-badge">ISSUED ON<br><span id="cardDate">DD/MM/YYYY</span></div>
+            </div>
+            <div class="chip-container">
+                <div class="smart-chip"><div class="smart-chip-center"></div></div>
+            </div>
+            <div class="card-body">
+                <div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); letter-spacing: 2px;">TOTAL VALUE</div>
+                    <div class="card-amount" id="cardTk">৳0.00</div>
+                    <div style="font-size: 1.2rem; color: var(--accent); font-weight: bold; margin-top: 5px;" id="cardCoins">0 Coins</div>
+                </div>
+            </div>
+            <div class="card-footer-flex">
+                <div class="user-name" id="cardName">GUEST USER</div>
+                <div class="accounts-info">
+                    <div>bKash: <span id="cardBkash">N/A</span></div>
+                    <div>Nagad: <span id="cardNagad">N/A</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ADMIN WHATSAPP NUMBER
+        const ADMIN_WHATSAPP = "8801962601164"; 
+
+        const RATE = 7.2;
+        const DEFAULT_API_KEY = "AQ.Ab8RN6LSaFfh7OsQtzjT2SBUq2CSU1Meiy_2RArmGDhn3N3HRg";
+        const SYSTEM_PIN = "Minimum50k"; 
+        
+        let appData = JSON.parse(localStorage.getItem('emerald_data')) || { activeId: null, sessions: [] };
+        let currentPaymentDetails = {}; 
+
+        const authScreen = document.getElementById('authScreen');
+        const setupScreen = document.getElementById('setupScreen');
+        const mainApp = document.getElementById('mainApp');
+        const appFooter = document.getElementById('appFooter');
+        const coinDisplay = document.getElementById('coinDisplay');
+        const tkDisplay = document.getElementById('tkDisplay');
+        const motivationBox = document.getElementById('motivationBox');
+        const sessionList = document.getElementById('sessionList');
+
+        function checkAuth() {
+            if (localStorage.getItem('emerald_unlocked') === 'true') {
+                authScreen.style.display = 'none'; checkProfileSetup();
+            }
+        }
+
+        function verifyPassword() {
+            if (document.getElementById('authPassword').value === SYSTEM_PIN) {
+                localStorage.setItem('emerald_unlocked', 'true');
+                authScreen.style.display = 'none'; checkProfileSetup();
+            } else { alert("Incorrect Password!"); }
+        }
+        document.getElementById('authPassword').addEventListener('keypress', e => { if (e.key === 'Enter') verifyPassword(); });
+
+        function checkProfileSetup() {
+            if (!localStorage.getItem('emerald_user_name')) setupScreen.style.display = 'flex';
+            else launchApp();
+        }
+        function saveProfileName() {
+            const name = document.getElementById('setupName').value.trim();
+            if (name === '') { alert("Please enter your name!"); return; }
+            localStorage.setItem('emerald_user_name', name);
+            setupScreen.style.display = 'none'; launchApp();
+        }
+
+        function launchApp() {
+            mainApp.style.display = 'flex';
+            appFooter.style.display = 'block';
+            if (!appData.sessions.length) createNewSession(false);
+            updateUI(); renderSessions();
+        }
+
+        function formatK(num) {
+            if (num >= 1000) { let k = num/1000; return (Number.isInteger(k) ? k : k.toFixed(1)) + 'k'; }
+            return num.toString();
+        }
+
+        function createNewSession(updateRender = true) {
+            const d = new Date();
+            const name = `${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' })} - ${d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+            const newSession = { id: Date.now(), name, coins: 0 };
+            appData.sessions.unshift(newSession); appData.activeId = newSession.id;
+            saveData(); if (updateRender) { updateUI(); renderSessions(); toggleSidebar(); }
+        }
+
+        function saveData() { localStorage.setItem('emerald_data', JSON.stringify(appData)); }
+        function getActiveSession() { return appData.sessions.find(s => s.id === appData.activeId); }
+
+        function updatePsychologyUI(coins) {
+            if (coins >= 100000) motivationBox.innerText = "লেজেন্ডারি!";
+            else if (coins >= 75000) motivationBox.innerText = "আনস্টপেবল!";
+            else if (coins >= 50000) motivationBox.innerText = "এলিট!";
+            else if (coins >= 25000) motivationBox.innerText = "সাবাস!";
+            else motivationBox.innerText = "এগিয়ে যান";
+        }
+
+        function updateUI() {
+            const session = getActiveSession();
+            if(!session) return;
+            coinDisplay.innerText = formatK(session.coins);
+            tkDisplay.innerText = ((session.coins / 1000) * RATE).toFixed(2);
+            updatePsychologyUI(session.coins);
+        }
+
+        function renderSessions() {
+            sessionList.innerHTML = '';
+            appData.sessions.forEach(session => {
+                const isActive = session.id === appData.activeId;
+                const div = document.createElement('div');
+                div.className = `session-item ${isActive ? 'active' : ''}`;
+                div.onclick = () => { appData.activeId = session.id; saveData(); updateUI(); renderSessions(); toggleSidebar(); };
+                div.innerHTML = `<div class="session-info"><h4>${session.name}</h4><p>${formatK(session.coins)} Coins</p></div><button class="delete-btn" onclick="deleteSession(event, ${session.id})">🗑</button>`;
+                sessionList.appendChild(div);
+            });
+        }
+
+        function deleteSession(e, id) {
+            e.stopPropagation(); if(!confirm("এই হিস্ট্রি মুছে ফেলতে চান?")) return;
+            appData.sessions = appData.sessions.filter(s => s.id !== id);
+            if (appData.sessions.length === 0) createNewSession(false);
+            else if (appData.activeId === id) appData.activeId = appData.sessions[0].id;
+            saveData(); updateUI(); renderSessions();
+        }
+
+        function addCoins() {
+            const input = document.getElementById('coinInput');
+            const val = parseInt(input.value);
+            if (isNaN(val) || val <= 0) return;
+            
+            const session = getActiveSession();
+            session.coins += val;
+            saveData(); updateUI(); renderSessions();
+            input.value = '';
+        }
+
+        document.getElementById('coinInput').addEventListener('keypress', e => { if (e.key === 'Enter') addCoins(); });
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('open'); }
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
+
+        function getApiKey() { return localStorage.getItem('custom_api_key') || DEFAULT_API_KEY; }
+        function openSettings() { document.getElementById('apiKeyInput').value = getApiKey(); document.getElementById('settingsModal').style.display = 'flex'; }
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if(key === '') { localStorage.removeItem('custom_api_key'); alert("Custom key cleared."); } 
+            else { localStorage.setItem('custom_api_key', key); alert("API Key Saved."); }
+            closeModals();
+        }
+        function checkApiStatus() { return getApiKey().length >= 20; }
+
+        function initiatePayment() {
+            const session = getActiveSession();
+            if (session.coins === 0) { alert("আপনার একাউন্টে কোনো কয়েন নেই!"); return; }
+            if (!checkApiStatus()) { alert("এখন এই সিস্টেমটি বন্ধ আছে।"); return; }
+
+            document.getElementById('nameInput').value = localStorage.getItem('emerald_user_name') || '';
+            document.getElementById('bkashInput').value = ''; document.getElementById('nagadInput').value = '';
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        function processPayment() {
+            const session = getActiveSession();
+            const name = document.getElementById('nameInput').value.trim() || 'GUEST USER';
+            const bkash = document.getElementById('bkashInput').value.trim() || 'N/A';
+            const nagad = document.getElementById('nagadInput').value.trim() || 'N/A';
+            const totalTk = ((session.coins / 1000) * RATE).toFixed(2);
+            
+            const today = new Date();
+            document.getElementById('cardDate').innerText = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+            document.getElementById('cardTk').innerText = "৳" + totalTk;
+            document.getElementById('cardCoins').innerText = formatK(session.coins) + " Coins";
+            document.getElementById('cardName').innerText = name.toUpperCase();
+            document.getElementById('cardBkash').innerText = bkash;
+            document.getElementById('cardNagad').innerText = nagad;
+
+            currentPaymentDetails = { name, coins: formatK(session.coins), tk: totalTk, bkash, nagad };
+
+            // 1. Close Payment Modal
+            closeModals(); 
+            
+            // 2. IMMEDIATELY show the Success Modal with Loading Status
+            document.getElementById('successModal').style.display = 'flex';
+            document.getElementById('modalStatusTitle').innerText = "Processing... ⏳";
+            document.getElementById('modalStatusTitle').style.color = "var(--primary)";
+            document.getElementById('modalStatusText').innerText = "দয়া করে অপেক্ষা করুন, কার্ড তৈরি হচ্ছে...";
+            document.getElementById('whatsappBtn').style.display = 'none';
+
+            // 3. Try to generate canvas
+            setTimeout(() => {
+                try {
+                    html2canvas(document.getElementById('alienPaymentCard'), { backgroundColor: null, scale: 3, logging: false })
+                    .then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = `Coin_Elite_${Date.now()}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        
+                        // Show Button when successful
+                        showWhatsAppButton("Card Generated! 🎉", "নিচের বাটনে ক্লিক করে অ্যাডমিনকে পেমেন্ট ডিটেইলস পাঠিয়ে দিন।");
+                    })
+                    .catch(err => {
+                        // Show Button even if Canvas fails (Crucial Fallback)
+                        showWhatsAppButton("Action Required ⚠️", "কার্ড ডাউনলোডে সমস্যা হয়েছে। তবে নিচের বাটনে ক্লিক করে অ্যাডমিনকে টেক্সট মেসেজ পাঠাতে পারবেন।");
+                    });
+                } catch(e) {
+                    // Show Button if critical error occurs
+                    showWhatsAppButton("Ready to Send!", "নিচের বাটনে ক্লিক করে অ্যাডমিনকে মেসেজ পাঠিয়ে দিন।");
+                }
+            }, 500);
+        }
+
+        function showWhatsAppButton(title, text) {
+            document.getElementById('modalStatusTitle').innerText = title;
+            document.getElementById('modalStatusText').innerHTML = text;
+            document.getElementById('whatsappBtn').style.display = 'flex';
+        }
+
+        // --- UPDATED WHATSAPP MESSAGE FUNCTION ---
+        function sendToWhatsApp() {
+            const msg = `আসসালামু আলাইকুম।\n\nআমার পেমেন্ট রিকোয়েস্টের বিস্তারিত তথ্য নিচে প্রদান করা হলো:\n\n*👤 নাম:* ${currentPaymentDetails.name}\n*🪙 মোট কয়েন:* ${currentPaymentDetails.coins}\n*💰 প্রাপ্য অ্যামাউন্ট:* ৳${currentPaymentDetails.tk}\n*📱 বিকাশ নম্বর:* ${currentPaymentDetails.bkash}\n*📱 নগদ নম্বর:* ${currentPaymentDetails.nagad}\n\n(ডাউনলোড করা পেমেন্ট কার্ডটি আমি গ্যালারি থেকে অ্যাটাচ করে দিচ্ছি। অনুগ্রহ করে চেক করে কনফার্ম করবেন। ধন্যবাদ!)`;
+            
+            const encodedMsg = encodeURIComponent(msg);
+            const whatsappURL = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodedMsg}`;
+            window.open(whatsappURL, '_blank');
+        }
+
+        checkAuth();
+    </script>
+</body>
+</html>
