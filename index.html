@@ -208,9 +208,11 @@
 </head>
 <body>
 
+    <!-- Ambient Background -->
     <div class="orb-1"></div>
     <div class="orb-2"></div>
 
+    <!-- Lock Screen -->
     <div class="fullscreen-overlay" id="authScreen">
         <div class="auth-card">
             <h2>System Locked</h2>
@@ -220,6 +222,7 @@
         </div>
     </div>
 
+    <!-- Sidebar History -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
@@ -230,6 +233,7 @@
         <div id="sessionList" style="overflow-y: auto; flex: 1; padding-right: 5px;"></div>
     </div>
 
+    <!-- Main App UI -->
     <div class="app-container" id="mainApp">
         <div class="header">
             <h1>Coin<span>Elite</span></h1>
@@ -248,12 +252,13 @@
         <div class="input-group">
             <input type="number" id="coinInput" class="input-box" placeholder="Enter Deposit Amount" inputmode="numeric">
             <button class="btn-primary" onclick="addCoins()">Add to Balance</button>
-            <button class="btn-primary btn-withdraw" onclick="initiatePayment()">Issue Premium Card</button>
+            <button class="btn-primary btn-withdraw" onclick="initiatePayment()">গেট পেমেন্ট</button>
         </div>
     </div>
 
     <div class="footer" id="appFooter">Developed by <span>Yasmin</span></div>
 
+    <!-- Settings Modal (UPDATED WITH DEFAULT AUTOSAVE) -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-content">
             <h2>Global Settings</h2>
@@ -277,6 +282,7 @@
         </div>
     </div>
 
+    <!-- Payment Modal -->
     <div class="modal-overlay" id="paymentModal">
         <div class="modal-content">
             <h2 style="font-size: 1.3rem;">Verify Details</h2>
@@ -286,11 +292,12 @@
             <input type="text" id="nagadInput" class="input-box" style="margin-bottom: 25px;" placeholder="Nagad Number" inputmode="numeric">
             <div style="display: flex; gap: 10px;">
                 <button class="btn-primary" style="flex: 1; background: transparent; color: var(--text-muted); border: 1px solid var(--border); box-shadow: none;" onclick="closeModals()">Cancel</button>
-                <button class="btn-primary" style="flex: 1;" onclick="processPayment()">Mint Card</button>
+                <button class="btn-primary" style="flex: 1;" onclick="processPayment()">গেট পেমেন্ট</button>
             </div>
         </div>
     </div>
 
+    <!-- Success Modal -->
     <div class="modal-overlay" id="successModal">
         <div class="modal-content" style="border: 1px solid var(--primary); padding: 40px 25px; box-shadow: 0 0 50px rgba(0,255,136,0.2);">
             <h2 id="modalStatusTitle" style="color: var(--primary); font-size: 1.8rem;">Processing... ⏳</h2>
@@ -308,6 +315,7 @@
         </div>
     </div>
 
+    <!-- Hidden Premium Exchange Canvas -->
     <div class="payment-card-wrapper">
         <div class="alien-card" id="alienPaymentCard">
             <div class="card-header">
